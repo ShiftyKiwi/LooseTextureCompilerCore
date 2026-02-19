@@ -1048,7 +1048,7 @@ namespace FFXIVLooseTextureCompiler {
                     // Some DDS normals do not carry meaningful alpha and should keep layered/backup alpha.
                     using (Bitmap topAlpha = ImageManipulation.ExtractAlpha(topLayer)) {
                         using (Bitmap layeredAlpha = ImageManipulation.ExtractAlpha(layered)) {
-                            Bitmap selectedAlpha = ImageManipulation.HasUsableAlpha(topAlpha) ? topAlpha : layeredAlpha;
+                            Bitmap selectedAlpha = ImageManipulation.HasUsableAlpha(topAlpha, 16, 0.05f) ? topAlpha : layeredAlpha;
                             using (Bitmap layeredRgb = ImageManipulation.ExtractRGB(layered)) {
                                 using (Bitmap preservedAlpha = ImageManipulation.MergeAlphaToRGB(selectedAlpha, layeredRgb)) {
                                     using (Bitmap blacked = ImageManipulation.BlackoutTransparentRgb(preservedAlpha, 2)) {

@@ -314,7 +314,7 @@ namespace FFXIVLooseTextureCompiler.ImageProcessing {
             return image;
         }
 
-        public static bool HasUsableAlpha(Bitmap file, byte minAlpha = 8, float minCoverage = 0.002f) {
+        public static bool HasUsableAlpha(Bitmap file, byte minAlpha = 16, float minCoverage = 0.05f) {
             LockBitmap source = new LockBitmap(file);
             source.LockBits();
             int visibleCount = 0;
