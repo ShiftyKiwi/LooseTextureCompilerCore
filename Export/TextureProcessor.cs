@@ -1049,8 +1049,9 @@ namespace FFXIVLooseTextureCompiler {
                     using (Bitmap topAlpha = ImageManipulation.ExtractAlpha(topLayer)) {
                         using (Bitmap layeredAlpha = ImageManipulation.ExtractAlpha(layered)) {
                             Bitmap selectedAlpha = ImageManipulation.HasUsableAlpha(topAlpha, 16, 0.05f) ? topAlpha : layeredAlpha;
-                            using (Bitmap layeredRgb = ImageManipulation.ExtractRGB(layered)) {
-                                using (Bitmap preservedAlpha = ImageManipulation.MergeAlphaToRGB(selectedAlpha, layeredRgb)) {
+                            // Keep dragged normal RGB intact; only replace alpha mask source.
+                            using (Bitmap topRgb = ImageManipulation.ExtractRGB(topLayer)) {
+                                using (Bitmap preservedAlpha = ImageManipulation.MergeAlphaToRGB(selectedAlpha, topRgb)) {
                                     using (Bitmap blacked = ImageManipulation.BlackoutTransparentRgb(preservedAlpha, 2)) {
                                         WriteNormalAlphaDebug(inputFile, topAlpha, layeredAlpha, selectedAlpha, blacked);
                                         TexIO.SaveBitmap(blacked, stream);
