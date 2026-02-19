@@ -296,6 +296,24 @@ namespace FFXIVLooseTextureCompiler.ImageProcessing {
             return image;
         }
 
+        public static Bitmap BlackoutTransparentRgb(Bitmap file, byte alphaThreshold = 0) {
+            Bitmap image = TexIO.NewBitmap(file);
+            LockBitmap source = new LockBitmap(image);
+            source.LockBits();
+            for (int y = 0; y < image.Height; y++) {
+                for (int x = 0; x < image.Width; x++) {
+                    Color sourcePixel = source.GetPixel(x, y);
+                    if (sourcePixel.A <= alphaThreshold) {
+                        source.SetPixel(x, y, Color.FromArgb(sourcePixel.A, 0, 0, 0));
+                    } else {
+                        source.SetPixel(x, y, sourcePixel);
+                    }
+                }
+            }
+            source.UnlockBits();
+            return image;
+        }
+
         public static Bitmap GenerateFaceMulti(Bitmap file, bool asym) {
             Bitmap image = new Bitmap(Grayscale.MakeGrayscale(file));
             LockBitmap source = new LockBitmap(image);

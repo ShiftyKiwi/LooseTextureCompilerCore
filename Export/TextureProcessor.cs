@@ -630,7 +630,7 @@ namespace FFXIVLooseTextureCompiler {
                     if (!skipTexExport) {
                         Task.Run(() => ExportTex(textureSet.FinalNormal, normalDiskPath, ExportType.None, "", "",
                     textureSet.BackupTexturePaths != null ? textureSet.BackupTexturePaths.Normal : "", "", !textureSet.InternalBasePath.Contains("eye") ? textureSet.Glow : "",
-                    false, textureSet.InvertNormalAlpha || !string.IsNullOrEmpty(textureSet.Glow), !string.IsNullOrEmpty(textureSet.Glow)));
+                    false, textureSet.InvertNormalAlpha || !string.IsNullOrEmpty(textureSet.Glow), !string.IsNullOrEmpty(textureSet.Glow), blackOutTransparentRgb: true));
                     }
                     outputGenerated = true;
                 }
@@ -664,7 +664,7 @@ namespace FFXIVLooseTextureCompiler {
                         Task.Run(() => ExportTex(textureSet.BackupTexturePaths != null ?
                         textureSet.BackupTexturePaths.Normal : "", normalDiskPath,
                         ExportType.None, "", textureSet.NormalMask, "",
-                        textureSet.NormalCorrection, textureSet.Glow, textureSet.InvertNormalGeneration, textureSet.InternalBasePath.Contains("fac_")));
+                        textureSet.NormalCorrection, textureSet.Glow, textureSet.InvertNormalGeneration, textureSet.InternalBasePath.Contains("fac_"), blackOutTransparentRgb: true));
                     }
                 }
                 outputGenerated = true;
@@ -767,14 +767,14 @@ namespace FFXIVLooseTextureCompiler {
         }
         public async Task<bool> ExportTex(string inputFile, string outputFile, ExportType exportType = ExportType.None,
             string baseTextureNormal = "", string modifierMap = "", string layeringImage = "",
-            string normalCorrection = "", string alphaOverride = "", bool modifier = false, bool invertAlpha = false, bool dontInvertAlphaOverride = false) {
+            string normalCorrection = "", string alphaOverride = "", bool modifier = false, bool invertAlpha = false, bool dontInvertAlphaOverride = false, bool blackOutTransparentRgb = false) {
             byte[] data = new byte[0];
             bool skipPngTexConversion = false;
             try {
                 using (MemoryStream stream = new MemoryStream()) {
                     switch (exportType) {
                         case ExportType.None:
-                            ExportTypeNone(inputFile, layeringImage, stream, alphaOverride, invertAlpha, dontInvertAlphaOverride);
+                            ExportTypeNone(inputFile, layeringImage, stream, alphaOverride, invertAlpha, dontInvertAlphaOverride, blackOutTransparentRgb);
                             break;
                         case ExportType.DontManipulate:
                             data = TexIO.GetTexBytes(inputFile);
@@ -1038,18 +1038,39 @@ namespace FFXIVLooseTextureCompiler {
             }
         }
 
-        private void ExportTypeNone(string inputFile, string layeringImage, Stream stream, string alphaOverride = "", bool invertAlpha = false, bool dontInvertAlphaOverrid = false) {
+        private void ExportTypeNone(string inputFile, string layeringImage, Stream stream, string alphaOverride = "", bool invertAlpha = false, bool dontInvertAlphaOverrid = false, bool blackOutTransparentRgb = false) {
             if (!string.IsNullOrEmpty(layeringImage)) {
                 Bitmap bottomLayer = TexIO.ResolveBitmap(Path.Combine(_basePath, layeringImage));
                 Bitmap topLayer = GetMergedBitmap(inputFile);
-                TexIO.SaveBitmap(ImageManipulation.LayerImages(bottomLayer, topLayer, alphaOverride, invertAlpha, dontInvertAlphaOverrid), stream);
+                var layered = ImageManipulation.LayerImages(bottomLayer, topLayer, alphaOverride, invertAlpha, dontInvertAlphaOverrid);
+                if (blackOutTransparentRgb) {
+                    using (Bitmap blacked = ImageManipulation.BlackoutTransparentRgb(layered)) {
+                        TexIO.SaveBitmap(blacked, stream);
+                    }
+                } else {
+                    TexIO.SaveBitmap(layered, stream);
+                }
             } else {
                 using (Bitmap bitmap = GetMergedBitmap(inputFile.StartsWith(@"res\") ? Path.Combine(_basePath, inputFile) : inputFile)) {
                     if (bitmap != null) {
                         if (string.IsNullOrEmpty(alphaOverride)) {
-                            TexIO.SaveBitmap(bitmap, stream);
+                            if (blackOutTransparentRgb) {
+                                using (Bitmap blacked = ImageManipulation.BlackoutTransparentRgb(bitmap)) {
+                                    TexIO.SaveBitmap(blacked, stream);
+                                }
+                            } else {
+                                TexIO.SaveBitmap(bitmap, stream);
+                            }
                         } else {
-                            TexIO.SaveBitmap(ImageManipulation.MergeAlphaToRGB(TexIO.Resize(Grayscale.MakeGrayscale(TexIO.ResolveBitmap(alphaOverride)), bitmap.Width, bitmap.Height), bitmap), stream);
+                            using (Bitmap merged = ImageManipulation.MergeAlphaToRGB(TexIO.Resize(Grayscale.MakeGrayscale(TexIO.ResolveBitmap(alphaOverride)), bitmap.Width, bitmap.Height), bitmap)) {
+                                if (blackOutTransparentRgb) {
+                                    using (Bitmap blacked = ImageManipulation.BlackoutTransparentRgb(merged)) {
+                                        TexIO.SaveBitmap(blacked, stream);
+                                    }
+                                } else {
+                                    TexIO.SaveBitmap(merged, stream);
+                                }
+                            }
                         }
                     }
                 }
