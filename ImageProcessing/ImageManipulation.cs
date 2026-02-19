@@ -324,13 +324,14 @@ namespace FFXIVLooseTextureCompiler.ImageProcessing {
             for (int y = 0; y < file.Height; y++) {
                 for (int x = 0; x < file.Width; x++) {
                     Color sourcePixel = source.GetPixel(x, y);
-                    if (sourcePixel.A < minSeen) {
-                        minSeen = sourcePixel.A;
+                    int alphaValue = sourcePixel.R;
+                    if (alphaValue < minSeen) {
+                        minSeen = alphaValue;
                     }
-                    if (sourcePixel.A > maxSeen) {
-                        maxSeen = sourcePixel.A;
+                    if (alphaValue > maxSeen) {
+                        maxSeen = alphaValue;
                     }
-                    if (sourcePixel.A >= minAlpha) {
+                    if (alphaValue >= minAlpha) {
                         visibleCount++;
                     }
                 }
