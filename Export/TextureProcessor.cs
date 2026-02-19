@@ -1044,11 +1044,18 @@ namespace FFXIVLooseTextureCompiler {
                 Bitmap topLayer = GetMergedBitmap(inputFile);
                 var layered = ImageManipulation.LayerImages(bottomLayer, topLayer, alphaOverride, invertAlpha, dontInvertAlphaOverrid);
                 if (blackOutTransparentRgb) {
-                    // For normal passthrough exports, preserve the dragged texture alpha channel.
-                    // Backup normals can have opaque/empty alpha that would otherwise overwrite user alpha.
-                    using (Bitmap preservedAlpha = ImageManipulation.MergeAlphaToRGB(ImageManipulation.ExtractAlpha(topLayer), ImageManipulation.ExtractRGB(layered))) {
-                        using (Bitmap blacked = ImageManipulation.BlackoutTransparentRgb(preservedAlpha)) {
-                            TexIO.SaveBitmap(blacked, stream);
+                    // Prefer dragged texture alpha when it is actually populated.
+                    // Some DDS normals do not carry meaningful alpha and should keep layered/backup alpha.
+                    using (Bitmap topAlpha = ImageManipulation.ExtractAlpha(topLayer)) {
+                        using (Bitmap layeredAlpha = ImageManipulation.ExtractAlpha(layered)) {
+                            Bitmap selectedAlpha = ImageManipulation.HasUsableAlpha(topAlpha) ? topAlpha : layeredAlpha;
+                            using (Bitmap layeredRgb = ImageManipulation.ExtractRGB(layered)) {
+                                using (Bitmap preservedAlpha = ImageManipulation.MergeAlphaToRGB(selectedAlpha, layeredRgb)) {
+                                    using (Bitmap blacked = ImageManipulation.BlackoutTransparentRgb(preservedAlpha, 2)) {
+                                        TexIO.SaveBitmap(blacked, stream);
+                                    }
+                                }
+                            }
                         }
                     }
                 } else {

@@ -314,6 +314,23 @@ namespace FFXIVLooseTextureCompiler.ImageProcessing {
             return image;
         }
 
+        public static bool HasUsableAlpha(Bitmap file, byte minAlpha = 8, float minCoverage = 0.002f) {
+            LockBitmap source = new LockBitmap(file);
+            source.LockBits();
+            int visibleCount = 0;
+            int total = file.Width * file.Height;
+            for (int y = 0; y < file.Height; y++) {
+                for (int x = 0; x < file.Width; x++) {
+                    Color sourcePixel = source.GetPixel(x, y);
+                    if (sourcePixel.A >= minAlpha) {
+                        visibleCount++;
+                    }
+                }
+            }
+            source.UnlockBits();
+            return total > 0 && ((float)visibleCount / total) >= minCoverage;
+        }
+
         public static Bitmap GenerateFaceMulti(Bitmap file, bool asym) {
             Bitmap image = new Bitmap(Grayscale.MakeGrayscale(file));
             LockBitmap source = new LockBitmap(image);
