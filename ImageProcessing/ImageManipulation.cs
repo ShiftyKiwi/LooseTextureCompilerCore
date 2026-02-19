@@ -319,15 +319,26 @@ namespace FFXIVLooseTextureCompiler.ImageProcessing {
             source.LockBits();
             int visibleCount = 0;
             int total = file.Width * file.Height;
+            int minSeen = 255;
+            int maxSeen = 0;
             for (int y = 0; y < file.Height; y++) {
                 for (int x = 0; x < file.Width; x++) {
                     Color sourcePixel = source.GetPixel(x, y);
+                    if (sourcePixel.A < minSeen) {
+                        minSeen = sourcePixel.A;
+                    }
+                    if (sourcePixel.A > maxSeen) {
+                        maxSeen = sourcePixel.A;
+                    }
                     if (sourcePixel.A >= minAlpha) {
                         visibleCount++;
                     }
                 }
             }
             source.UnlockBits();
+            if (maxSeen - minSeen < 8) {
+                return false;
+            }
             return total > 0 && ((float)visibleCount / total) >= minCoverage;
         }
 
