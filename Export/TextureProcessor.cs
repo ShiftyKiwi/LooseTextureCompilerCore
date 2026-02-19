@@ -1052,6 +1052,7 @@ namespace FFXIVLooseTextureCompiler {
                             using (Bitmap layeredRgb = ImageManipulation.ExtractRGB(layered)) {
                                 using (Bitmap preservedAlpha = ImageManipulation.MergeAlphaToRGB(selectedAlpha, layeredRgb)) {
                                     using (Bitmap blacked = ImageManipulation.BlackoutTransparentRgb(preservedAlpha, 2)) {
+                                        WriteNormalAlphaDebug(inputFile, topAlpha, layeredAlpha, selectedAlpha, blacked);
                                         TexIO.SaveBitmap(blacked, stream);
                                     }
                                 }
@@ -1085,6 +1086,37 @@ namespace FFXIVLooseTextureCompiler {
                         }
                     }
                 }
+            }
+        }
+
+        private void WriteNormalAlphaDebug(string inputFile, Bitmap topAlpha, Bitmap layeredAlpha, Bitmap selectedAlpha, Bitmap finalTexture) {
+            try {
+                string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                string folder = Path.Combine(appData, "XIVLauncher", "pluginConfigs", "DragAndDropTexturing", "alpha-debug");
+                Directory.CreateDirectory(folder);
+                string stamp = DateTime.Now.ToString("yyyyMMdd_HHmmss_fff");
+                string id = Guid.NewGuid().ToString("N")[..8];
+                string prefix = $"{stamp}_{id}";
+
+                string fileTag = Path.GetFileNameWithoutExtension(inputFile);
+                if (string.IsNullOrEmpty(fileTag)) {
+                    fileTag = "unknown";
+                }
+                var sb = new System.Text.StringBuilder(fileTag.Length);
+                foreach (char c in fileTag) {
+                    if (char.IsLetterOrDigit(c) || c == '_' || c == '-') {
+                        sb.Append(c);
+                    }
+                }
+                fileTag = sb.Length > 0 ? sb.ToString() : "input";
+
+                TexIO.SaveBitmap(topAlpha, Path.Combine(folder, $"{prefix}_{fileTag}_top_alpha.png"));
+                TexIO.SaveBitmap(layeredAlpha, Path.Combine(folder, $"{prefix}_{fileTag}_layered_alpha.png"));
+                TexIO.SaveBitmap(selectedAlpha, Path.Combine(folder, $"{prefix}_{fileTag}_selected_alpha.png"));
+                TexIO.SaveBitmap(ImageManipulation.ExtractAlpha(finalTexture), Path.Combine(folder, $"{prefix}_{fileTag}_final_alpha.png"));
+                TexIO.SaveBitmap(finalTexture, Path.Combine(folder, $"{prefix}_{fileTag}_final_rgb.png"));
+            } catch {
+                // Debug dump is best-effort only.
             }
         }
 
