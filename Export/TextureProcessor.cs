@@ -33,9 +33,6 @@ namespace FFXIVLooseTextureCompiler {
         private Dictionary<string, Bitmap> _glowCache;
         private Dictionary<string, string> _xnormalCache;
         private XNormal _xnormal;
-        private List<KeyValuePair<string, string>> _textureSetQueue;
-        private int _fileCount;
-
         private bool _finalizeResults;
         private bool _generateNormals;
         private bool _generateMulti;
@@ -230,7 +227,6 @@ namespace FFXIVLooseTextureCompiler {
             Dictionary<string, List<TextureSet>> groups = new Dictionary<string, List<TextureSet>>();
             try {
                 int i = 0;
-                _fileCount = 0;
                 _finalizeResults = useXNormal;
                 _normalCache?.Clear();
                 _maskCache?.Clear();

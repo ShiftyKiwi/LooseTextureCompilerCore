@@ -53,7 +53,6 @@ public sealed class PenumbraTexture : IDisposable {
     public event Action<bool>? Loaded;
 
     private void Load(string path) {
-        _tmpPath = null;
         if (path == Path) {
             return;
         }
@@ -113,7 +112,4 @@ public sealed class PenumbraTexture : IDisposable {
         }
         return null;
     }
-
-
-    private string? _tmpPath;
 }

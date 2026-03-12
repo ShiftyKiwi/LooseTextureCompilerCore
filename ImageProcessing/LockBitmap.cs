@@ -58,8 +58,8 @@ namespace FFXIVLooseTextureCompiler.ImageProcessing {
                     Marshal.Copy(Iptr, Pixels, 0, Pixels.Length);
                     alreadyLocked = true;
                 }
-            } catch (Exception ex) {
-                throw ex;
+            } catch {
+                throw;
             }
         }
 
@@ -76,8 +76,8 @@ namespace FFXIVLooseTextureCompiler.ImageProcessing {
                     source.UnlockBits(bitmapData);
                     alreadyLocked = false;
                 }
-            } catch (Exception ex) {
-                throw ex;
+            } catch {
+                throw;
             }
         }
 

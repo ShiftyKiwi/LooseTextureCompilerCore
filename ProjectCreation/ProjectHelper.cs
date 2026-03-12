@@ -159,7 +159,7 @@ namespace LooseTextureCompilerCore.ProjectCreation
                     AddHairPaths(textureSet, (int)gender, (int)facePart, faceExtra, (int)race, (int)subRace);
                     break;
             }
-            textureSet.IgnoreMultiGeneration = true;
+            textureSet.IgnoreMaskGeneration = true;
             if (facePart == 0)
             {
                 BackupTexturePaths.AddFaceBackupPaths((int)gender, (int)subRace, faceExtra, textureSet);
@@ -173,7 +173,7 @@ namespace LooseTextureCompilerCore.ProjectCreation
                 textureSet.InternalBasePath = RacePaths.GetBodyTexturePath(0, gender, baseBody, race, tail, uniqueAuRa);
             }
             textureSet.InternalNormalPath = RacePaths.GetBodyTexturePath(1, gender, baseBody, race, tail, uniqueAuRa);
-            textureSet.InternalMultiPath = RacePaths.GetBodyTexturePath(2, gender, baseBody, race, tail, uniqueAuRa);
+            textureSet.InternalMaskPath = RacePaths.GetBodyTexturePath(2, gender, baseBody, race, tail, uniqueAuRa);
             textureSet.InternalMaterialPath = RacePaths.GetBodyMaterialPath(gender, baseBody, race, tail);
             BackupTexturePaths.AddBodyBackupPaths(gender, race, textureSet);
         }
@@ -210,7 +210,7 @@ namespace LooseTextureCompilerCore.ProjectCreation
             textureSet.InternalNormalPath = RacePaths.GetHairTexturePath(1, faceExtra,
                 gender, race, subrace);
 
-            textureSet.InternalMultiPath = RacePaths.GetHairTexturePath(2, faceExtra,
+            textureSet.InternalMaskPath = RacePaths.GetHairTexturePath(2, faceExtra,
                 gender, race, subrace);
         }
 

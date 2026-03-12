@@ -192,7 +192,7 @@ namespace FFXIVLooseTextureCompiler.ImageProcessing
                         succeeded = true;
                         return bitmap;
                     }
-                    catch (Exception e)
+                    catch
                     {
                         Thread.Sleep(1000);
                     }

@@ -14,7 +14,6 @@ using System.Threading.Tasks;
 internal static class PenumbraApi {
     private const string Url = "http://localhost:42069/api";
     private const int TimeoutMs = 500;
-    private static bool calledWarningOnce = false;
     public static async Task Post(string route, object content) {
         await PostRequest(route, content);
     }
@@ -45,11 +44,7 @@ internal static class PenumbraApi {
             using var response = await client.PostAsync(Url + route, byteContent);
 
             return response;
-        } catch (Exception ex) {
-            //if (!calledWarningOnce) {
-            //    //MessageBox.Show(@"Error communicating with Penumbra. Try to select ""Enable HTTP API"" inside of penumbra under ""Settings -> Advanced"".");
-            //    //calledWarningOnce = true;
-            //}
+        } catch {
             return null;
         }
     }
